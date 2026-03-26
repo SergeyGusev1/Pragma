@@ -6,7 +6,6 @@ Note: Celery tasks run in a synchronous context. We use asyncio.run()
 to bridge into the async SQLAlchemy world.
 """
 
-import asyncio
 import logging
 from datetime import UTC, datetime, timedelta
 
@@ -27,8 +26,8 @@ def _get_sync_session():
     from sqlalchemy.orm import sessionmaker
 
     engine = create_engine(settings.database_url_sync)
-    SessionLocal = sessionmaker(bind=engine)
-    return SessionLocal()
+    session_factory = sessionmaker(bind=engine)
+    return session_factory()
 
 
 def _send_telegram_message(chat_id: int, text: str) -> bool:
@@ -51,7 +50,9 @@ def _send_telegram_message(chat_id: int, text: str) -> bool:
         return False
 
 
-@celery_app.task(name="tasks.reminder_tasks.send_deadline_reminders", bind=True, max_retries=3)
+@celery_app.task(
+    name="tasks.reminder_tasks.send_deadline_reminders", bind=True, max_retries=3
+)
 def send_deadline_reminders(self):
     """
     Scan for tasks due within the next 24 hours and notify assignees via Telegram.
@@ -85,7 +86,7 @@ def send_deadline_reminders(self):
 
         for task in tasks:
             if task.assignee is None or task.assignee.telegram_chat_id is None:
-                # No assignee or assignee hasn't linked Telegram — mark as sent to avoid re-checking
+                # No assignee or no Telegram — mark as sent to avoid re-checking
                 task.reminder_sent = True
                 continue
 
@@ -112,6 +113,6 @@ def send_deadline_reminders(self):
     except Exception as exc:
         session.rollback()
         logger.exception(f"Reminder task failed: {exc}")
-        raise self.retry(exc=exc, countdown=60)
+        raise self.retry(exc=exc, countdown=60) from exc
     finally:
         session.close()

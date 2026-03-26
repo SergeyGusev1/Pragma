@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 def _get_sync_session() -> Session:
     engine = create_engine(settings.database_url_sync)
-    SessionLocal = sessionmaker(bind=engine)
-    return SessionLocal()
+    session_factory = sessionmaker(bind=engine)
+    return session_factory()
 
 
 @router.message(Command("start"))
@@ -30,7 +30,8 @@ async def cmd_start(message: types.Message) -> None:
     await message.answer(
         "👋 Welcome to <b>Task Manager Bot</b>!\n\n"
         "To receive task deadline reminders, link your account:\n"
-        "1. Go to the app and request a link token via <code>POST /api/v1/users/me/telegram-link</code>\n"
+        "1. Go to the app and request a link token via "
+        "<code>POST /api/v1/users/me/telegram-link</code>\n"
         "2. Send me the token: <code>/link YOUR_TOKEN</code>"
     )
 
@@ -49,7 +50,9 @@ async def cmd_link(message: types.Message, command: CommandObject) -> None:
         ).scalar_one_or_none()
 
         if not user:
-            await message.answer("❌ Invalid or expired token. Please generate a new one from the app.")
+            await message.answer(
+                "❌ Invalid or expired token. Please generate a new one from the app."
+            )
             return
 
         user.telegram_chat_id = message.chat.id

@@ -19,7 +19,9 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def _create_token(subject: str, token_type: str, expire_delta: timedelta) -> tuple[str, str]:
+def _create_token(
+    subject: str, token_type: str, expire_delta: timedelta
+) -> tuple[str, str]:
     """Create a JWT token. Returns (encoded_token, jti)."""
     jti = str(uuid4())
     expire = datetime.now(UTC) + expire_delta

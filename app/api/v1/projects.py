@@ -106,7 +106,9 @@ async def invite_member(
     current_user: User = Depends(get_current_user_from_token),
     service: ProjectService = Depends(_get_project_service),
 ) -> ProjectMemberRead:
-    member = await service.invite_member(project_id, current_user.id, body.email, body.role)
+    member = await service.invite_member(
+        project_id, current_user.id, body.email, body.role
+    )
     user = await service.user_repo.get_by_id(member.user_id)
     return ProjectMemberRead(
         user_id=member.user_id,
@@ -145,7 +147,9 @@ async def update_member_role(
     current_user: User = Depends(get_current_user_from_token),
     service: ProjectService = Depends(_get_project_service),
 ) -> ProjectMemberRead:
-    member = await service.update_member_role(project_id, current_user.id, user_id, body.role)
+    member = await service.update_member_role(
+        project_id, current_user.id, user_id, body.role
+    )
     user = await service.user_repo.get_by_id(user_id)
     return ProjectMemberRead(
         user_id=user_id,

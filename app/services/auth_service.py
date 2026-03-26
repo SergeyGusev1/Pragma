@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 from jose import JWTError
 from redis.asyncio import Redis
@@ -57,15 +57,17 @@ class AuthService:
         user = await self.authenticate(email, password)
         return self._build_token_pair(user.id)
 
-    async def register_and_login(self, email: str, username: str, password: str) -> TokenPair:
+    async def register_and_login(
+        self, email: str, username: str, password: str
+    ) -> TokenPair:
         user = await self.register(email, username, password)
         return self._build_token_pair(user.id)
 
     async def refresh(self, refresh_token: str) -> TokenPair:
         try:
             payload = decode_token(refresh_token)
-        except JWTError:
-            raise UnauthorizedError("Invalid refresh token")
+        except JWTError as exc:
+            raise UnauthorizedError("Invalid refresh token") from exc
 
         if payload.get("type") != "refresh":
             raise UnauthorizedError("Invalid token type")
@@ -93,8 +95,8 @@ class AuthService:
     async def logout(self, refresh_token: str) -> None:
         try:
             payload = decode_token(refresh_token)
-        except JWTError:
-            raise BadRequestError("Invalid token")
+        except JWTError as exc:
+            raise BadRequestError("Invalid token") from exc
 
         jti = payload.get("jti")
         if jti:

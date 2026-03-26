@@ -1,4 +1,3 @@
-from collections.abc import AsyncGenerator
 
 import redis.asyncio as aioredis
 from fastapi import Depends
@@ -23,8 +22,9 @@ async def get_current_user(
 
 
 # Real dependency used in routes
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer  # noqa: E402
 import uuid  # noqa: E402
+
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer  # noqa: E402
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -39,8 +39,8 @@ async def get_current_user_from_token(
 
     try:
         payload = decode_token(credentials.credentials)
-    except JWTError:
-        raise UnauthorizedError("Invalid or expired token")
+    except JWTError as exc:
+        raise UnauthorizedError("Invalid or expired token") from exc
 
     if payload.get("type") != "access":
         raise UnauthorizedError("Invalid token type")

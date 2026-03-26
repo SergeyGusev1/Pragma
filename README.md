@@ -1,48 +1,48 @@
-# TimeWarden — Task Manager API
+# Pragma — Task Manager API
 
-A backend application for managing projects and tasks, with Telegram notifications and background reminders.
+Бэкенд-приложение для управления проектами и задачами с Telegram-уведомлениями и фоновыми напоминаниями о дедлайнах.
 
-Built with **FastAPI**, **PostgreSQL**, **Redis**, **Celery**, and **aiogram**.
+Реализован на **FastAPI**, **PostgreSQL**, **Redis**, **Celery** и **aiogram**.
 
 ---
 
-## Tech Stack
+## Стек технологий
 
-| Layer | Technology |
+| Слой | Технология |
 |---|---|
 | API | FastAPI 0.115 + Uvicorn |
-| Database | PostgreSQL 16 + SQLAlchemy 2 (async) |
-| Migrations | Alembic |
-| Cache / Broker | Redis 7 |
-| Background tasks | Celery 5 (worker + beat) |
-| Telegram bot | aiogram 3.18 |
-| Auth | JWT (access + refresh tokens) |
-| Validation | Pydantic v2 |
-| Containerization | Docker + Docker Compose |
+| База данных | PostgreSQL 16 + SQLAlchemy 2 (async) |
+| Миграции | Alembic |
+| Кэш / Брокер | Redis 7 |
+| Фоновые задачи | Celery 5 (worker + beat) |
+| Telegram-бот | aiogram 3.18 |
+| Аутентификация | JWT (access + refresh токены) |
+| Валидация | Pydantic v2 |
+| Контейнеризация | Docker + Docker Compose |
 
 ---
 
-## Project Structure
+## Структура проекта
 
 ```
 pet_project/
-├── app/                        # FastAPI application
-│   ├── api/v1/                 # REST endpoints
-│   │   ├── auth.py             # Registration, login, token refresh
-│   │   ├── users.py            # User profile
-│   │   ├── projects.py         # Projects & members
-│   │   └── tasks.py            # Tasks & tags
-│   ├── models/                 # SQLAlchemy ORM models
-│   ├── schemas/                # Pydantic request/response schemas
-│   ├── services/               # Business logic layer
-│   ├── repositories/           # Database access layer
-│   └── core/                   # Config, DB, security, Redis
-├── bot/                        # Telegram bot (aiogram)
+├── app/                        # FastAPI-приложение
+│   ├── api/v1/                 # REST-эндпоинты
+│   │   ├── auth.py             # Регистрация, вход, обновление токена
+│   │   ├── users.py            # Профиль пользователя
+│   │   ├── projects.py         # Проекты и участники
+│   │   └── tasks.py            # Задачи и теги
+│   ├── models/                 # SQLAlchemy ORM-модели
+│   ├── schemas/                # Pydantic-схемы запросов/ответов
+│   ├── services/               # Бизнес-логика
+│   ├── repositories/           # Слой доступа к базе данных
+│   └── core/                   # Конфиг, БД, безопасность, Redis
+├── bot/                        # Telegram-бот (aiogram)
 │   └── handlers/notifications.py
-├── tasks/                      # Celery tasks
+├── tasks/                      # Celery-задачи
 │   ├── celery_app.py
-│   └── reminder_tasks.py       # Deadline reminders
-├── alembic/                    # Database migrations
+│   └── reminder_tasks.py       # Напоминания о дедлайнах
+├── alembic/                    # Миграции базы данных
 └── tests/
     ├── unit/
     └── integration/
@@ -50,66 +50,69 @@ pet_project/
 
 ---
 
-## API Overview
+## API
 
-### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/auth/register` | Register a new user |
-| `POST` | `/api/v1/auth/login` | Login, get access + refresh tokens |
-| `POST` | `/api/v1/auth/refresh` | Refresh access token |
+### Аутентификация
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| `POST` | `/api/v1/auth/register` | Регистрация нового пользователя |
+| `POST` | `/api/v1/auth/login` | Вход, получение access + refresh токенов |
+| `POST` | `/api/v1/auth/refresh` | Обновление access-токена |
+| `POST` | `/api/v1/auth/logout` | Выход, инвалидация токена |
 
-### Projects
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/projects` | Create project |
-| `GET` | `/api/v1/projects` | List user's projects |
-| `GET` | `/api/v1/projects/{id}` | Get project details |
-| `PATCH` | `/api/v1/projects/{id}` | Update project |
-| `DELETE` | `/api/v1/projects/{id}` | Delete project |
-| `POST` | `/api/v1/projects/{id}/members` | Add member |
+### Проекты
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| `POST` | `/api/v1/projects` | Создать проект |
+| `GET` | `/api/v1/projects` | Список проектов пользователя |
+| `GET` | `/api/v1/projects/{id}` | Детали проекта |
+| `PATCH` | `/api/v1/projects/{id}` | Обновить проект |
+| `DELETE` | `/api/v1/projects/{id}` | Удалить проект |
+| `POST` | `/api/v1/projects/{id}/members` | Добавить участника |
+| `PATCH` | `/api/v1/projects/{id}/members/{user_id}` | Изменить роль участника |
+| `DELETE` | `/api/v1/projects/{id}/members/{user_id}` | Удалить участника |
 
-### Tasks
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/projects/{id}/tasks` | Create task |
-| `GET` | `/api/v1/projects/{id}/tasks` | List tasks (with filters) |
-| `GET` | `/api/v1/projects/{id}/tasks/{task_id}` | Get task |
-| `PATCH` | `/api/v1/projects/{id}/tasks/{task_id}` | Update task |
-| `DELETE` | `/api/v1/projects/{id}/tasks/{task_id}` | Delete task |
+### Задачи
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| `POST` | `/api/v1/projects/{id}/tasks` | Создать задачу |
+| `GET` | `/api/v1/projects/{id}/tasks` | Список задач (с фильтрами) |
+| `GET` | `/api/v1/projects/{id}/tasks/{task_id}` | Получить задачу |
+| `PATCH` | `/api/v1/projects/{id}/tasks/{task_id}` | Обновить задачу |
+| `DELETE` | `/api/v1/projects/{id}/tasks/{task_id}` | Удалить задачу |
 
-**Task filters:** `status`, `priority`, `assignee_id`, `deadline_before`, `deadline_after`, `page`, `size`
+**Фильтры задач:** `status`, `priority`, `assignee_id`, `deadline_before`, `deadline_after`, `page`, `size`
 
-### Tags
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/tags` | List all tags |
-| `POST` | `/api/v1/tags` | Create tag |
-| `POST` | `/api/v1/projects/{id}/tasks/{task_id}/tags/{tag_id}` | Attach tag to task |
-| `DELETE` | `/api/v1/projects/{id}/tasks/{task_id}/tags/{tag_id}` | Remove tag from task |
+### Теги
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| `GET` | `/api/v1/tags` | Список всех тегов |
+| `POST` | `/api/v1/tags` | Создать тег |
+| `POST` | `/api/v1/projects/{id}/tasks/{task_id}/tags/{tag_id}` | Прикрепить тег к задаче |
+| `DELETE` | `/api/v1/projects/{id}/tasks/{task_id}/tags/{tag_id}` | Открепить тег |
 
 ---
 
-## Getting Started
+## Быстрый старт
 
-### Prerequisites
+### Требования
 
-- [Docker](https://www.docker.com/) and Docker Compose
+- [Docker](https://www.docker.com/) и Docker Compose
 
-### 1. Clone the repository
+### 1. Клонировать репозиторий
 
 ```bash
-git clone https://github.com/your-username/timewarden.git
-cd timewarden
+git clone https://github.com/SergeyGusev1/Pragma.git
+cd Pragma
 ```
 
-### 2. Configure environment
+### 2. Настроить окружение
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and set your values:
+Заполнить `.env`:
 
 ```env
 SECRET_KEY=your-super-secret-key-change-in-production
@@ -120,29 +123,29 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 ```
 
-### 3. Run
+### 3. Запустить
 
 ```bash
 docker compose up --build
 ```
 
-The following services will start:
+Запустятся следующие сервисы:
 
-| Service | Description | Port |
-|---------|-------------|------|
-| `api` | FastAPI application | `8001` |
+| Сервис | Описание | Порт |
+|--------|----------|------|
+| `api` | FastAPI-приложение | `8001` |
 | `db` | PostgreSQL | `5433` |
 | `redis` | Redis | `6379` |
-| `celery_worker` | Background task worker | — |
-| `celery_beat` | Task scheduler | — |
-| `telegram_bot` | Telegram bot | — |
-| `migrations` | Runs Alembic migrations on startup | — |
+| `celery_worker` | Воркер фоновых задач | — |
+| `celery_beat` | Планировщик задач | — |
+| `telegram_bot` | Telegram-бот | — |
+| `migrations` | Alembic-миграции при старте | — |
 
 ---
 
-## API Docs
+## Документация API
 
-Once running, interactive documentation is available at:
+После запуска доступна интерактивная документация:
 
 - **Swagger UI** → http://localhost:8001/docs
 - **ReDoc** → http://localhost:8001/redoc
@@ -150,32 +153,32 @@ Once running, interactive documentation is available at:
 
 ---
 
-## Running Tests
+## Запуск тестов
 
 ```bash
-# Install dev dependencies
+# Установить dev-зависимости
 pip install -r requirements-dev.txt
 
-# Run all tests
+# Запустить все тесты
 pytest
 
-# With coverage
+# С отчётом о покрытии
 pytest --cov=app tests/
 ```
 
 ---
 
-## Architecture
+## Архитектура
 
-The application is a **monolith with process decomposition** — a single codebase and Docker image, with different containers running different entry points:
+Приложение построено по принципу **монолита с процессной декомпозицией** — единая кодовая база и Docker-образ, но разные контейнеры запускают разные точки входа:
 
 ```
 ┌─────────────────────────────────────────────┐
-│                Single Codebase               │
+│             Единая кодовая база              │
 │                                              │
 │  ┌──────────┐  ┌────────┐  ┌─────────────┐  │
 │  │ FastAPI  │  │ Celery │  │ Telegram Bot│  │
-│  │   API    │  │Worker  │  │  (aiogram)  │  │
+│  │   API    │  │ Worker │  │  (aiogram)  │  │
 │  └────┬─────┘  └───┬────┘  └──────┬──────┘  │
 └───────┼────────────┼──────────────┼──────────┘
         │            │              │
@@ -186,6 +189,6 @@ The application is a **monolith with process decomposition** — a single codeba
 
 ---
 
-## License
+## Лицензия
 
 MIT

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, utcnow
 
 
-class ProjectRole(str, enum.Enum):
+class ProjectRole(enum.StrEnum):
     owner = "owner"
     editor = "editor"
     viewer = "viewer"
@@ -44,7 +44,9 @@ class Project(Base, TimestampMixin):
 
 class ProjectMember(Base):
     __tablename__ = "project_members"
-    __table_args__ = (UniqueConstraint("project_id", "user_id", name="uq_project_member"),)
+    __table_args__ = (
+        UniqueConstraint("project_id", "user_id", name="uq_project_member"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -62,11 +64,16 @@ class ProjectMember(Base):
     role: Mapped[ProjectRole] = mapped_column(
         Enum(ProjectRole, name="project_role_enum"), nullable=False
     )
-    joined_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, nullable=False
+    )
 
     # Relationships
     project: Mapped[Project] = relationship("Project", back_populates="members")
     user: Mapped["User"] = relationship("User", back_populates="project_memberships")  # noqa: F821
 
     def __repr__(self) -> str:
-        return f"<ProjectMember project={self.project_id} user={self.user_id} role={self.role}>"
+        return (
+            f"<ProjectMember project={self.project_id} "
+            f"user={self.user_id} role={self.role}>"
+        )

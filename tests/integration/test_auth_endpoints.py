@@ -1,6 +1,5 @@
 """Integration tests for authentication endpoints."""
 
-import pytest
 from httpx import AsyncClient
 
 
@@ -61,7 +60,9 @@ class TestLogin:
 class TestRefreshAndLogout:
     async def test_refresh_token(self, client: AsyncClient, registered_user):
         refresh_token = registered_user["refresh_token"]
-        resp = await client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
+        resp = await client.post(
+            "/api/v1/auth/refresh", json={"refresh_token": refresh_token}
+        )
         assert resp.status_code == 200
         data = resp.json()
         assert "access_token" in data
@@ -72,11 +73,15 @@ class TestRefreshAndLogout:
         refresh_token = registered_user["refresh_token"]
 
         # Logout
-        resp = await client.post("/api/v1/auth/logout", json={"refresh_token": refresh_token})
+        resp = await client.post(
+            "/api/v1/auth/logout", json={"refresh_token": refresh_token}
+        )
         assert resp.status_code == 204
 
         # Attempt to use the same refresh token again — should be rejected
-        resp = await client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
+        resp = await client.post(
+            "/api/v1/auth/refresh", json={"refresh_token": refresh_token}
+        )
         assert resp.status_code == 401
 
     async def test_access_protected_route_without_token(self, client: AsyncClient):

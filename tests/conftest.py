@@ -6,7 +6,6 @@ Shared test fixtures.
 - Uses httpx.AsyncClient with ASGITransport (no real HTTP server).
 """
 
-import pytest
 import pytest_asyncio
 from fakeredis.aioredis import FakeRedis
 from httpx import ASGITransport, AsyncClient

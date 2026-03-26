@@ -11,18 +11,28 @@ from app.models.base import Base, TimestampMixin
 task_tag_association = Table(
     "task_tags",
     Base.metadata,
-    Column("task_id", UUID(as_uuid=True), ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True),
-    Column("tag_id", UUID(as_uuid=True), ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "task_id",
+        UUID(as_uuid=True),
+        ForeignKey("tasks.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "tag_id",
+        UUID(as_uuid=True),
+        ForeignKey("tags.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 
-class TaskStatus(str, enum.Enum):
+class TaskStatus(enum.StrEnum):
     todo = "todo"
     in_progress = "in_progress"
     done = "done"
 
 
-class TaskPriority(str, enum.Enum):
+class TaskPriority(enum.StrEnum):
     low = "low"
     medium = "medium"
     high = "high"
@@ -38,10 +48,14 @@ class Task(Base, TimestampMixin):
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     status: Mapped[TaskStatus] = mapped_column(
-        Enum(TaskStatus, name="task_status_enum"), default=TaskStatus.todo, nullable=False
+        Enum(TaskStatus, name="task_status_enum"),
+        default=TaskStatus.todo,
+        nullable=False,
     )
     priority: Mapped[TaskPriority] = mapped_column(
-        Enum(TaskPriority, name="task_priority_enum"), default=TaskPriority.medium, nullable=False
+        Enum(TaskPriority, name="task_priority_enum"),
+        default=TaskPriority.medium,
+        nullable=False,
     )
     deadline: Mapped[uuid.UUID | None] = mapped_column(DateTime, nullable=True)
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

@@ -16,7 +16,9 @@ class UserRead(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    username: str | None = Field(default=None, min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_]+$")
+    username: str | None = Field(
+        default=None, min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_]+$"
+    )
 
 
 class TelegramLinkResponse(BaseModel):

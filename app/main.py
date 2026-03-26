@@ -19,7 +19,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Task Manager API",
-    description="A comprehensive task management API with projects, tasks, and Telegram notifications.",
+    description=(
+        "A comprehensive task management API with projects, "
+        "tasks, and Telegram notifications."
+    ),
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",

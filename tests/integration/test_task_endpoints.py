@@ -1,6 +1,5 @@
 """Integration tests for task endpoints."""
 
-import pytest
 from httpx import AsyncClient
 
 
@@ -35,7 +34,9 @@ class TestTaskCRUD:
         assert isinstance(resp.json(), list)
         assert len(resp.json()) >= 1
 
-    async def test_filter_tasks_by_status(self, client: AsyncClient, auth_headers, test_project):
+    async def test_filter_tasks_by_status(
+        self, client: AsyncClient, auth_headers, test_project
+    ):
         # Create a task and update its status
         create_resp = await client.post(
             f"/api/v1/projects/{test_project['id']}/tasks",
@@ -89,7 +90,9 @@ class TestTaskCRUD:
         )
         assert del_resp.status_code == 204
 
-    async def test_viewer_cannot_create_task(self, client: AsyncClient, auth_headers, test_project):
+    async def test_viewer_cannot_create_task(
+        self, client: AsyncClient, auth_headers, test_project
+    ):
         # Register a viewer user and invite them
         viewer_resp = await client.post("/api/v1/auth/register", json={
             "email": "viewer@example.com",

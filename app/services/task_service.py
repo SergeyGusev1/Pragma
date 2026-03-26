@@ -51,7 +51,9 @@ class TaskService:
 
         # Validate assignee is a project member
         if assignee_id is not None:
-            member_role = await self.project_repo.get_member_role(project_id, assignee_id)
+            member_role = await self.project_repo.get_member_role(
+                project_id, assignee_id
+            )
             if member_role is None:
                 raise ForbiddenError("Assignee is not a member of this project")
 
@@ -65,7 +67,9 @@ class TaskService:
             creator_id=creator_id,
             assignee_id=assignee_id,
         )
-        await cache_invalidate_pattern(self.redis, f"cache:tasks:project:{project_id}:*")
+        await cache_invalidate_pattern(
+            self.redis, f"cache:tasks:project:{project_id}:*"
+        )
         return await self.task_repo.get_with_tags(task.id)  # type: ignore[return-value]
 
     async def get_task_or_404(
@@ -126,7 +130,9 @@ class TaskService:
         # Validate new assignee if changing
         new_assignee_id = update_data.get("assignee_id")
         if new_assignee_id is not None:
-            member_role = await self.project_repo.get_member_role(project_id, new_assignee_id)
+            member_role = await self.project_repo.get_member_role(
+                project_id, new_assignee_id
+            )
             if member_role is None:
                 raise ForbiddenError("Assignee must be a project member")
 
@@ -136,7 +142,9 @@ class TaskService:
 
         filtered = {k: v for k, v in update_data.items() if v is not None}
         updated = await self.task_repo.update(task, **filtered)
-        await cache_invalidate_pattern(self.redis, f"cache:tasks:project:{project_id}:*")
+        await cache_invalidate_pattern(
+            self.redis, f"cache:tasks:project:{project_id}:*"
+        )
         return updated
 
     async def delete_task(
@@ -147,10 +155,16 @@ class TaskService:
         if not task or task.project_id != project_id:
             raise NotFoundError("Task not found")
         await self.task_repo.delete(task)
-        await cache_invalidate_pattern(self.redis, f"cache:tasks:project:{project_id}:*")
+        await cache_invalidate_pattern(
+            self.redis, f"cache:tasks:project:{project_id}:*"
+        )
 
     async def add_tag_to_task(
-        self, project_id: uuid.UUID, task_id: uuid.UUID, user_id: uuid.UUID, tag_id: uuid.UUID
+        self,
+        project_id: uuid.UUID,
+        task_id: uuid.UUID,
+        user_id: uuid.UUID,
+        tag_id: uuid.UUID,
     ) -> Task:
         await self._require_project_role(project_id, user_id, ProjectRole.editor)
         task = await self.task_repo.get_with_tags(task_id)
@@ -168,7 +182,11 @@ class TaskService:
         return task
 
     async def remove_tag_from_task(
-        self, project_id: uuid.UUID, task_id: uuid.UUID, user_id: uuid.UUID, tag_id: uuid.UUID
+        self,
+        project_id: uuid.UUID,
+        task_id: uuid.UUID,
+        user_id: uuid.UUID,
+        tag_id: uuid.UUID,
     ) -> Task:
         await self._require_project_role(project_id, user_id, ProjectRole.editor)
         task = await self.task_repo.get_with_tags(task_id)

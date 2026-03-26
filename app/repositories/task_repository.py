@@ -58,7 +58,7 @@ class TaskRepository(BaseRepository[Task]):
     async def get_tasks_due_for_reminder(
         self, from_dt: datetime, to_dt: datetime
     ) -> list[Task]:
-        """Return tasks with deadline in [from_dt, to_dt] where reminder not yet sent."""
+        """Return tasks with deadline in [from_dt, to_dt] where reminder not sent."""
         stmt = (
             select(Task)
             .where(

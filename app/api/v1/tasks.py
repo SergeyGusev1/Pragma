@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query
 from redis.asyncio import Redis
@@ -13,7 +14,6 @@ from app.repositories.project_repository import ProjectRepository
 from app.repositories.task_repository import TagRepository, TaskRepository
 from app.schemas.task import TagCreate, TagRead, TaskCreate, TaskRead, TaskUpdate
 from app.services.task_service import TaskService
-from datetime import datetime
 
 router = APIRouter(tags=["Tasks"])
 
@@ -115,7 +115,9 @@ async def delete_task(
     await service.delete_task(project_id, task_id, current_user.id)
 
 
-@router.post("/projects/{project_id}/tasks/{task_id}/tags/{tag_id}", response_model=TaskRead)
+@router.post(
+    "/projects/{project_id}/tasks/{task_id}/tags/{tag_id}", response_model=TaskRead
+)
 async def add_tag_to_task(
     project_id: uuid.UUID,
     task_id: uuid.UUID,
@@ -127,7 +129,9 @@ async def add_tag_to_task(
     return TaskRead.model_validate(task)
 
 
-@router.delete("/projects/{project_id}/tasks/{task_id}/tags/{tag_id}", response_model=TaskRead)
+@router.delete(
+    "/projects/{project_id}/tasks/{task_id}/tags/{tag_id}", response_model=TaskRead
+)
 async def remove_tag_from_task(
     project_id: uuid.UUID,
     task_id: uuid.UUID,
@@ -135,7 +139,9 @@ async def remove_tag_from_task(
     current_user: User = Depends(get_current_user_from_token),
     service: TaskService = Depends(_get_task_service),
 ) -> TaskRead:
-    task = await service.remove_tag_from_task(project_id, task_id, current_user.id, tag_id)
+    task = await service.remove_tag_from_task(
+        project_id, task_id, current_user.id, tag_id
+    )
     return TaskRead.model_validate(task)
 
 
@@ -160,6 +166,11 @@ async def create_tag(
     session: AsyncSession = Depends(get_async_session),
     redis: Redis = Depends(get_redis),
 ) -> TagRead:
-    service = TaskService(TaskRepository(session), TagRepository(session), ProjectRepository(session), redis)
+    service = TaskService(
+        TaskRepository(session),
+        TagRepository(session),
+        ProjectRepository(session),
+        redis,
+    )
     tag = await service.create_or_get_tag(body.name, body.color)
     return TagRead.model_validate(tag)

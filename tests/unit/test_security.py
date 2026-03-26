@@ -1,6 +1,5 @@
 """Unit tests for JWT and password hashing utilities."""
 
-import time
 
 import pytest
 from jose import JWTError

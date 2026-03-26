@@ -3,7 +3,12 @@ import uuid
 from redis.asyncio import Redis
 
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
-from app.core.redis_client import cache_delete, cache_get, cache_invalidate_pattern, cache_set
+from app.core.redis_client import (
+    cache_delete,
+    cache_get,
+    cache_invalidate_pattern,
+    cache_set,
+)
 from app.models.project import Project, ProjectMember, ProjectRole
 from app.repositories.project_repository import ProjectRepository
 from app.repositories.user_repository import UserRepository
@@ -84,7 +89,7 @@ class ProjectService:
             update_data["description"] = description
 
         updated = await self.project_repo.update(project, **update_data)
-        await cache_invalidate_pattern(self.redis, f"cache:projects:*")
+        await cache_invalidate_pattern(self.redis, "cache:projects:*")
         return updated
 
     async def delete_project(self, project_id: uuid.UUID, user_id: uuid.UUID) -> None:

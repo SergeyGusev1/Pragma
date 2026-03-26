@@ -3,13 +3,13 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from app.core.config import settings
 
 # Import all models so Alembic can detect them
 from app.models.base import Base  # noqa: F401
-from app.models.user import User  # noqa: F401
 from app.models.project import Project, ProjectMember  # noqa: F401
-from app.models.task import Task, Tag  # noqa: F401
-from app.core.config import settings
+from app.models.task import Tag, Task  # noqa: F401
+from app.models.user import User  # noqa: F401
 
 config = context.config
 
