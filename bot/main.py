@@ -29,6 +29,14 @@ async def main() -> None:
     dp = Dispatcher()
     dp.include_router(notifications.router)
 
+    @dp.startup()
+    async def on_startup() -> None:
+        if settings.telegram_admin_chat_id:
+            await bot.send_message(
+                settings.telegram_admin_chat_id,
+                "✅ <b>Бот запущен</b> и готов к работе.",
+            )
+
     logger.info("Starting Telegram bot...")
     await dp.start_polling(bot)
 

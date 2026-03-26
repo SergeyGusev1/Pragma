@@ -28,6 +28,7 @@ class Settings(BaseSettings):
 
     # Telegram
     telegram_bot_token: str = ""
+    telegram_admin_chat_id: int | None = None
 
     @property
     def database_url(self) -> str:
